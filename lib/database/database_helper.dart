@@ -40,7 +40,7 @@ class LocalDatabase {
       //where: 'isDeleted = 0'
     );
     return maps;
-    
+
     //List.generate(maps.length, (i) => Todo.fromJson(maps[i]));
   }
 
@@ -73,8 +73,6 @@ class LocalDatabase {
     final db = await database;
     return await db.delete('todos', where: 'id = ?', whereArgs: [id]);
   }
-
- 
 
   static Future<void> clearAllTodos() async {
     final db = await database;

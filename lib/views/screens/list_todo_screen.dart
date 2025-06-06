@@ -1,37 +1,62 @@
 import 'dart:convert';
 import 'dart:developer';
-
+import 'add_todo_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:todo/models/todo_model.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:todo/Router/page_router_name.dart';
+import 'package:todo/views/widgets/widget.dart';
 import 'package:todo/Router/routing_service.dart';
+import 'package:todo/Router/page_router_name.dart';
+import 'package:todo/views/widgets/color_const.dart';
 import 'package:todo/controllers/todo/todo_bloc.dart';
 import 'package:todo/controllers/todo/todo_event.dart';
 import 'package:todo/controllers/todo/todo_state.dart';
-import 'package:todo/models/todo_model.dart';
-import 'package:todo/views/widgets/color_const.dart';
-import 'package:todo/views/widgets/widget.dart';
-import 'add_todo_screen.dart';
 
-class TodoListScreen extends StatelessWidget {
+class TodoListScreen extends StatefulWidget {
   const TodoListScreen({super.key});
+
+  @override
+  State<TodoListScreen> createState() => _TodoListScreenState();
+}
+
+class _TodoListScreenState extends State<TodoListScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(Duration.zero, () async {
+      RoutingService.navigatorKey.currentContext!
+          .read<TodoBloc>()
+          .add(LoadTodos());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: black,
-        title: barlowBold(text: "Todo List Screens", color: white, size: 18),
+        title: barlowBold(
+          text: "Todo List Screens",
+          color: white,
+          size: 18,
+        ),
       ),
       body: BlocBuilder<TodoBloc, TodoState>(
         builder: (context, state) {
-          log("message${state.toString()}");
           if (state is TodoLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           } else if (state is TodoLoaded) {
             final todos = state.todos;
             if (todos.isEmpty) {
-              return const Center(child: Text('No Todos found.'));
+              return Center(
+                child: barlowBold(
+                  text: 'No Todos found.',
+                  color: black,
+                  size: 18,
+                ),
+              );
             }
             return ListView.builder(
               itemCount: todos.length,
@@ -66,10 +91,11 @@ class TodoListScreen extends StatelessWidget {
                                 IconButton(
                                   onPressed: () {
                                     RoutingService().pushNamed(
-                                        Routes.todoAddScreen.name,
-                                        queryParameters: {
-                                          "todo": jsonEncode(todo.toJson())
-                                        });
+                                      Routes.todoAddScreen.name,
+                                      queryParameters: {
+                                        "todo": jsonEncode(todo.toJson())
+                                      },
+                                    );
                                   },
                                   icon: Icon(
                                     Icons.edit_square,
@@ -92,13 +118,15 @@ class TodoListScreen extends StatelessWidget {
                               ],
                             ),
                             barlowRegular(
-                                text: todo.description ?? "",
-                                color: black,
-                                size: 12),
+                              text: todo.description ?? "",
+                              color: black,
+                              size: 12,
+                            ),
                             barlowRegular(
-                                text: "Date: ${todo.dateTime ?? ""}",
-                                color: black,
-                                size: 12),
+                              text: "Date: ${todo.dateTime ?? ""}",
+                              color: black,
+                              size: 12,
+                            ),
                           ],
                         ),
                       )
@@ -108,25 +136,40 @@ class TodoListScreen extends StatelessWidget {
               },
             );
           } else if (state is TodoError) {
-            return Center(child: Text(state.message));
+            return Center(
+              child: barlowBold(
+                text: state.message,
+                color: black,
+                size: 20,
+              ),
+            );
           } else {
-            return const Center(child: Text('Something went wrong.'));
+            return Center(
+              child: barlowBold(
+                text: 'Something went wrong.',
+                color: black,
+                size: 20,
+              ),
+            );
           }
         },
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: black,
         onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const AddTodoScreen()),
-          );
-
-          // Reload the list after returning from AddTodoScreen
+          final result =
+              await RoutingService().pushNamed(Routes.todoAddScreen.name);
           if (result != null && result == true) {
-            context.read<TodoBloc>().add(LoadTodos());
+            RoutingService.navigatorKey.currentContext!
+                .read<TodoBloc>()
+                .add(LoadTodos());
           }
         },
-        child: const Icon(Icons.add),
+        child: Icon(
+          Icons.add,
+          color: white,
+          size: 22,
+        ),
       ),
     );
   }

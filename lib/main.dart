@@ -2,19 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:todo/Router/page_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:todo/Router/routing_service.dart';
+import 'package:todo/controllers/todo/todo_bloc.dart';
 import 'package:todo/controllers/network/network_bloc.dart';
 import 'package:todo/controllers/network/network_event.dart';
-import 'package:todo/controllers/todo/todo_bloc.dart';
-import 'package:todo/controllers/todo/todo_event.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final networkBloc = NetworkBloc()..add(NetworkStarted());
+
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider<NetworkBloc>(
-          create: (context) => NetworkBloc()..add(NetworkStarted()),
+          create: (context) => networkBloc,
         ),
         BlocProvider<TodoBloc>(
           create: (context) => TodoBloc(
