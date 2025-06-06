@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'network_event.dart';
 import 'network_state.dart';
 import 'package:bloc/bloc.dart';
@@ -10,13 +11,16 @@ class NetworkBloc extends Bloc<NetworkEvent, NetworkState> {
 
   NetworkBloc() : super(NetworkState.initial()) {
     on<NetworkStarted>((event, emit) {
+      log("message");
       _connectivitySubscription = _connectivity.onConnectivityChanged.listen((
         results,
       ) {
         if (results.contains(ConnectivityResult.mobile) ||
             results.contains(ConnectivityResult.wifi)) {
+          log("ConnectivityResult");
           add(NetworkStatusChanged(ConnectivityResult.wifi));
         } else {
+          log("No");
           add(NetworkStatusChanged(ConnectivityResult.none));
         }
       });
