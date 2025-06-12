@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:todo/Router/page_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:todo/controllers/network/network_state.dart';
+import 'package:todo/controllers/sync/sync_bloc.dart';
+import 'package:todo/controllers/sync/sync_event.dart';
 import 'package:todo/controllers/todo/todo_bloc.dart';
 import 'package:todo/controllers/network/network_bloc.dart';
 import 'package:todo/controllers/network/network_event.dart';
@@ -15,6 +18,9 @@ void main() async {
       providers: [
         BlocProvider<NetworkBloc>(
           create: (context) => networkBloc,
+        ),
+        BlocProvider<SyncBloc>(
+          create: (context) => SyncBloc(),
         ),
         BlocProvider<TodoBloc>(
           create: (context) => TodoBloc(

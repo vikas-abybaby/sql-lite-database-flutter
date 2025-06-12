@@ -19,41 +19,55 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
 
   Future<void> _loadTodos(LoadTodos event, Emitter<TodoState> emit) async {
     emit(TodoLoading());
+
     try {
       final networkStatus = networkBloc.state.status;
       final data = await LocalDatabase.getTodos();
-      log("Fun Calling$data");
       List<Todo> localTodos = [];
+
       if (networkStatus == NetworkStatus.connected) {
-        log("NetworkStatus connected");
+        log("🌐 Network connected, syncing from server...");
         final serverTodos = await TodoServer.getData(showLoader: data.isEmpty);
+
         if (data.isNotEmpty && serverTodos is List) {
           await LocalDatabase.clearAllTodos();
           for (var todo in serverTodos) {
-            await LocalDatabase.insertTodo(todo);
+            await LocalDatabase.insertTodo(Todo.fromJson(todo));
           }
         } else {
           localTodos = List.from(data.map((e) => Todo.fromJson(e)));
         }
       } else {
-        log("NetworkStatus Deconnected");
+        log("📴 Offline mode, loading from local DB...");
         localTodos = List.from(data.map((e) => Todo.fromJson(e)));
       }
 
       emit(TodoLoaded(localTodos));
     } catch (e) {
-      log("Error$e");
+      log("❌ Error loading todos: $e");
       emit(TodoError("Failed to load todos"));
     }
   }
 
   Future<void> _addTodo(AddTodoEvent event, Emitter<TodoState> emit) async {
     try {
-      await LocalDatabase.insertTodo(event.todo);
-      final todos = await LocalDatabase.getTodos();
-      log("message$todos");
-      emit(TodoLoaded(List.from(todos.map((e) => Todo.fromJson(e)))));
+      Todo todo = event.todo;
+      final networkStatus = networkBloc.state.status;
+
+      if (networkStatus == NetworkStatus.connected) {
+        final serverId = await TodoServer.addData();
+        if (serverId != null) {
+          todo = todo.copyWith(productId: serverId,);
+          log("✅ Synced with server, productId: $serverId");
+        }
+       
+      } else {
+        await LocalDatabase.insertTodo(todo);
+        log("📴 Saved locally for future sync");
+      }
+       add(LoadTodos());
     } catch (e) {
+      log("❌ Failed to add todo: $e");
       emit(TodoError("Failed to add todo"));
     }
   }

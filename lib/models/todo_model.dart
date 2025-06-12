@@ -4,7 +4,7 @@ class Todo {
   String? description;
   String? dateTime;
   int? isEdit;
-  int? productId;
+  String? productId;
   int? isDeleted;
 
   Todo(
@@ -27,14 +27,14 @@ class Todo {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['title'] = this.title;
-    data['description'] = this.description;
-    data['dateTime'] = this.dateTime;
-    data['isEdit'] = this.isEdit;
-    data['productId'] = this.productId;
-    data['isDeleted'] = this.isDeleted;
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['title'] = title;
+    data['description'] = description;
+    data['dateTime'] = dateTime;
+    data['isEdit'] = isEdit;
+    data['productId'] = productId;
+    data['isDeleted'] = isDeleted;
     return data;
   }
 
@@ -44,7 +44,7 @@ class Todo {
     String? description,
     String? dateTime,
     int? isEdit,
-    int? productId,
+    String? productId,
     int? isDeleted,
   }) {
     return Todo(

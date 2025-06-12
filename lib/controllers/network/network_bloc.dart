@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:todo/Router/routing_service.dart';
 import 'package:todo/controllers/network/network_event.dart';
 import 'package:todo/controllers/network/network_state.dart';
+import 'package:todo/controllers/sync/sync_bloc.dart';
+import 'package:todo/controllers/sync/sync_event.dart';
 
 class NetworkBloc extends Bloc<NetworkEvent, NetworkState> {
   final Connectivity _connectivity = Connectivity();
@@ -40,6 +43,9 @@ class NetworkBloc extends Bloc<NetworkEvent, NetworkState> {
     if (event.result == ConnectivityResult.mobile ||
         event.result == ConnectivityResult.wifi) {
       emit(state.copyWith(status: NetworkStatus.connected));
+      RoutingService.navigatorKey.currentContext!
+          .read<SyncBloc>()
+          .add(StartSync());
     } else {
       emit(state.copyWith(status: NetworkStatus.disconnected));
     }

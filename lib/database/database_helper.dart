@@ -69,6 +69,22 @@ class LocalDatabase {
     );
   }
 
+  static Future<int> updateProductId({
+    required int id,
+    required String productId,
+  }) async {
+    final db = await database;
+    return await db.update(
+      'todos',
+      {
+        'productId': productId,
+        'isEdit': 0,
+      },
+      where: 'id = ?',
+      whereArgs: [id],
+    );
+  }
+
   static Future<int> deleteLocal(int id) async {
     final db = await database;
     return await db.delete('todos', where: 'id = ?', whereArgs: [id]);
@@ -77,5 +93,14 @@ class LocalDatabase {
   static Future<void> clearAllTodos() async {
     final db = await database;
     await db.delete('todos');
+  }
+
+  static Future<List> getUnsyncedTodos() async {
+    final db = await database;
+    final result = await db.query(
+      'todos',
+      where: 'productId IS NULL',
+    );
+    return result;
   }
 }

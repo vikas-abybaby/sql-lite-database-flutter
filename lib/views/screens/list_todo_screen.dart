@@ -62,6 +62,8 @@ class _TodoListScreenState extends State<TodoListScreen> {
               itemCount: todos.length,
               itemBuilder: (context, index) {
                 Todo todo = todos[index];
+
+                log("message1111${todo.productId} : ${todo.isEdit}");
                 return Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   margin: EdgeInsets.all(15),
